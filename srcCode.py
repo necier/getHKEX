@@ -1,13 +1,11 @@
-import time
 import urllib.request
 import json
-import re
 
 import tkinter as tk
-import subprocess
-import sys
 import os
 from tkinter import filedialog
+from ctypes import windll
+
 
 Header = {
     # 实测只需要User-Agent即可
@@ -32,7 +30,7 @@ t2Gcode = 't2Gcode=-2&'
 t2code = 't2code=40100&'
 rowRange = 'rowRange=200&'
 lang = 'lang=zh&'  # 这个页面只有繁中以及英文
-file_path=os.getcwd()+'\\'
+file_path=str(os.getcwd())+'\\'
 
 
 def dateforward(year, month):
@@ -85,9 +83,16 @@ if __name__ == '__main__':
     print("Running")
     pre_year, pre_month = 2007, 6
     next_year, next_month = 2007, 7
+    #----------------------让用户选择目标文件夹
+    windll.shcore.SetProcessDpiAwareness(2)     #高清对话框
     root=tk.Tk()
     root.withdraw()
-    file_path=filedialog.askdirectory().replace('/','\\')+'\\'
+    file_path=filedialog.askdirectory().replace('/','\\')
+    if(len(file_path) == 0):
+        exit(0)
+    else:
+        file_path=file_path+'\\'
+    #--------------------------------------
     while (pre_year < 2022) or (pre_year == 2022 and next_month <= 3):
         if (pre_month < 10):
             pre = str(pre_year) + '0' + str(pre_month) + "01"
