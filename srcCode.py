@@ -3,6 +3,12 @@ import urllib.request
 import json
 import re
 
+import tkinter as tk
+import subprocess
+import sys
+import os
+from tkinter import filedialog
+
 Header = {
     # 实测只需要User-Agent即可
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36',
@@ -26,6 +32,7 @@ t2Gcode = 't2Gcode=-2&'
 t2code = 't2code=40100&'
 rowRange = 'rowRange=200&'
 lang = 'lang=zh&'  # 这个页面只有繁中以及英文
+file_path=os.getcwd()+'\\'
 
 
 def dateforward(year, month):
@@ -52,7 +59,7 @@ def getPage(FD, TD):
 
 def Download_pdf(url, file_name):
     print('downloading...' + file_name)
-    urllib.request.urlretrieve(url, 'E:\Spider\dir_PDF' + '\\' + file_name + '.pdf')
+    urllib.request.urlretrieve(url, file_path + file_name + '.pdf')
 
 
 def PageProcess(PageData):
@@ -78,6 +85,9 @@ if __name__ == '__main__':
     print("Running")
     pre_year, pre_month = 2007, 6
     next_year, next_month = 2007, 7
+    root=tk.Tk()
+    root.withdraw()
+    file_path=filedialog.askdirectory().replace('/','\\')+'\\'
     while (pre_year < 2022) or (pre_year == 2022 and next_month <= 3):
         if (pre_month < 10):
             pre = str(pre_year) + '0' + str(pre_month) + "01"
