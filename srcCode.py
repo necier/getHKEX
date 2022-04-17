@@ -1,3 +1,4 @@
+import time
 import urllib.request
 import json
 
@@ -7,7 +8,7 @@ from tkinter import filedialog
 from ctypes import windll
 
 Header = {
-    # 实测只需要User-Agent即可
+    # 测试过，只加User-Agent的效果是最好的
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36',
 }
 prefix = 'https://www1.hkexnews.hk/search/titleSearchServlet.do?'
@@ -64,14 +65,27 @@ def PageProcess(PageData):
         file_info = str(i['FILE_INFO'])
         if (file_info == '多檔案'):
             continue
-        stock_title = stock_title.replace('/', ' ').replace('\n', '').replace('\r', '')
+        stock_code=stock_code.replace('/',' ').replace('\n','').replace('\r','').replace('|',' ').replace('<',' ').replace('>',' ')
+        stock_title = stock_title.replace('/', ' ').replace('\n', '').replace('\r', '').replace('|',' ').replace('<',' ').replace('>',' ')
         file_name = (stock_code + '_' + stock_name + '_' + stock_title) \
-            .replace('/', ' ').replace('\n', ' ').replace('\r', ' ')
-        # 下载到一半报错了，发现“冠忠巴士集團 2007 2008"这玩意有换行符，果断更新了一波代码
+            .replace('/', ' ').replace('\n', '').replace('\r', '').replace('|',' ').replace('<',' ').replace('>',' ')
+        # 下载到一半报错了，发现“冠忠巴士集團 2007 2008"这玩意有换行符以及'\r'，果断更新了一波代码
+        #思捷环球的2009年年报有一个‘|’，这个也要换掉
         final_path_prefix = file_path + stock_code + '_' + stock_name
         if not (os.path.isdir(final_path_prefix)):
-            os.makedirs(final_path_prefix)
-        Download_pdf(pdf_url, final_path_prefix, file_name)
+            try:
+                os.makedirs(final_path_prefix)
+            except OSError:
+                print('This file has such a fucking strange name that this program could not solve it, sry dude.')
+                continue
+        if (os.path.isfile(final_path_prefix + '\\' + file_name + '.pdf')):
+            print('This file already exists, we will skip it___' + file_name)
+            time.sleep(0.1)  # get rid of anti-reptile system
+            continue
+        try:
+            Download_pdf(pdf_url, final_path_prefix, file_name)
+        except urllib.error.HTTPError:
+            print("404 Not Found. Invalid pdf_url. it's site's fault")
 
 
 if __name__ == '__main__':
