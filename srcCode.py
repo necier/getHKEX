@@ -96,8 +96,8 @@ def PageProcess(PageData):
 
 if __name__ == '__main__':
     print("Running")
-    pre_year, pre_month = 2014, 4
-    next_year, next_month = 2014, 5
+    pre_year, pre_month = 2007, 6
+    next_year, next_month = 2007, 7
     # ----------------------让用户选择目标文件夹
     windll.shcore.SetProcessDpiAwareness(2)  # 高清对话框
     root = tk.Tk()
