@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import time
 import urllib.request
 import json
@@ -69,14 +71,16 @@ def PageProcess(PageData):
         stock_title = stock_title.replace('/', ' ').replace('\n', '').replace('\r', '').replace('|',' ').replace('<',' ').replace('>',' ')
         file_name = (stock_code + '_' + stock_name + '_' + stock_title) \
             .replace('/', ' ').replace('\n', '').replace('\r', '').replace('|',' ').replace('<',' ').replace('>',' ')
-        # 下载到一半报错了，发现“冠忠巴士集團 2007 2008"这玩意有换行符以及'\r'，果断更新了一波代码
-        #思捷环球的2009年年报有一个‘|’，这个也要换掉
         final_path_prefix = file_path + stock_code + '_' + stock_name
         if not (os.path.isdir(final_path_prefix)):
             try:
                 os.makedirs(final_path_prefix)
             except OSError:
-                print('This file has such a fucking strange name that this program could not solve it, sry dude.')
+                print(
+                    "This file has such a strange name that this program could not solve it. check <log.txt> for details")
+                with open(file_path+'log.txt', 'a+') as f:
+                    f.write('OSError' + ':' + stock_code + '_' + stock_name + '\n')
+
                 continue
         if (os.path.isfile(final_path_prefix + '\\' + file_name + '.pdf')):
             print('This file already exists, we will skip it___' + file_name)
@@ -86,12 +90,14 @@ def PageProcess(PageData):
             Download_pdf(pdf_url, final_path_prefix, file_name)
         except urllib.error.HTTPError:
             print("404 Not Found. Invalid pdf_url. it's site's fault")
+            with open(file_path+'log.txt', 'a+')as f:
+                f.write('HTTPError' + ':' + stock_code + '_' + stock_name + '\n')
 
 
 if __name__ == '__main__':
     print("Running")
-    pre_year, pre_month = 2007, 6
-    next_year, next_month = 2007, 7
+    pre_year, pre_month = 2014, 4
+    next_year, next_month = 2014, 5
     # ----------------------让用户选择目标文件夹
     windll.shcore.SetProcessDpiAwareness(2)  # 高清对话框
     root = tk.Tk()
