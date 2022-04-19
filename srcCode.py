@@ -28,7 +28,7 @@ searchType = 'searchType=1&'
 t1code = 't1code=40000&'  # 三个tcode可以定位到年报这个选项
 t2Gcode = 't2Gcode=-2&'
 t2code = 't2code=40100&'
-rowRange = 'rowRange=200&'
+rowRange = 'rowRange=2000&' # rowRange决定了xhr展示的大小，所以调大一点
 lang = 'lang=zh&'  # 这个页面只有繁中以及英文
 
 
