@@ -42,10 +42,12 @@ Param = {
 }
 
 
+# 清除字符串中多余的字符，便于后期处理
 def strstd(a):
     return a.replace('/', ' ').replace('\n', '').replace('\r', '').replace('|', ' ').replace('<', ' ').replace('>', ' ')
 
 
+# 月份+=1，返回合法日期
 def dateforward(year, month):
     month = month + 1
     if month > 12:
@@ -78,7 +80,7 @@ def PageProcess(PageData):
         stock_name = str(i['STOCK_NAME'])
         stock_title = str(i['TITLE'])
         file_info = str(i['FILE_INFO'])
-        if file_info == '多檔案':
+        if file_info == '多檔案':  # 这里必须是繁体，别乱改
             continue
         stock_code = strstd(stock_code)
         stock_title = strstd(stock_title)
@@ -92,7 +94,6 @@ def PageProcess(PageData):
                     "This file's name is unsolvable. check <log.txt> for details")
                 with open(file_path + 'log.txt', 'a+') as f:
                     f.write('OSError' + ':' + stock_code + '_' + stock_name + '\n')
-
                 continue
         if os.path.isfile(final_path_prefix + '\\' + file_name + '.pdf'):
             print('This file already exists, we will skip it___' + file_name)
@@ -111,7 +112,7 @@ if __name__ == '__main__':
     pre_year, pre_month = CONFIG['startDate'][0], CONFIG['startDate'][1]
     next_year, next_month = CONFIG['startDate'][0], CONFIG['startDate'][1] + 1
     print([pre_year, pre_month, next_year, next_month])
-    # ----------------------让用户选择目标文件夹
+    # ----------------------选择pdf保存路径
     windll.shcore.SetProcessDpiAwareness(2)  # 高清对话框
     root = tk.Tk()
     root.withdraw()
@@ -121,7 +122,8 @@ if __name__ == '__main__':
     else:
         file_path = file_path + '\\'
     # --------------------------------------
-    while (pre_year < 2022) or (pre_year == 2022 and next_month <= 10):
+    while (pre_year < CONFIG['endDate'][0]) \
+            or (pre_year == CONFIG['endDate'][0] and next_month <= CONFIG['endDate'][1]):
         if pre_month < 10:
             pre = str(pre_year) + '0' + str(pre_month) + "01"
         else:
