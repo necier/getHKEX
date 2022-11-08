@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
-
+import copy
 import time
 import urllib.request
 import urllib.parse
+import urllib.error
 import json
 import tkinter as tk
 import os
@@ -30,8 +31,8 @@ Param = {
     'market': 'SEHK',
     'stockId': '-1',
     'documentType': '-1',
-    'fromDate': '20220228',
-    'toDate': '20220330',
+    'fromDate': '20220228',  # 初始化时随便设的值，后面getPage()会改成正确的值
+    'toDate': '20220330',  # 初始化时随便设的值，后面getPage()会改成正确的值
     'title': '',
     'searchType': '1',
     't1code': '40000',
@@ -42,18 +43,34 @@ Param = {
 }
 
 
+class Date(object):
+    def __init__(self, config):
+        self.preDate = None
+        self.day = '01'
+        self.currentDate = copy.deepcopy(CONFIG['startDate'])
+        self.endDate = copy.deepcopy(CONFIG['endDate'])
+
+    def timeAdvance(self):
+        self.currentDate[1] += 1
+        if self.currentDate[1] > 12:
+            self.currentDate[1] = 1
+            self.currentDate[0] += 1
+
+    def returnDateInterval(self) -> list:
+        res = []
+        self.preDate = copy.deepcopy(self.currentDate)
+        self.timeAdvance()
+        res.append(str(self.preDate[0]) + str.zfill(str(self.preDate[1]), 2) + self.day)
+        res.append(str(self.currentDate[0]) + str.zfill(str(self.currentDate[1]), 2) + self.day)
+        return res
+
+    def dateCheck(self) -> bool:
+        return self.currentDate == self.endDate
+
+
 # 清除字符串中多余的字符，便于后期处理
-def strstd(a):
-    return a.replace('/', ' ').replace('\n', '').replace('\r', '').replace('|', ' ').replace('<', ' ').replace('>', ' ')
-
-
-# 月份+=1，返回合法日期
-def dateforward(year, month):
-    month = month + 1
-    if month > 12:
-        month = 1
-        year = year + 1
-    return year, month
+def strstd(s):
+    return s.replace('/', ' ').replace('\n', '').replace('\r', '').replace('|', ' ').replace('<', ' ').replace('>', ' ')
 
 
 def getPage(FD, TD):
@@ -109,10 +126,7 @@ def PageProcess(PageData):
 
 if __name__ == '__main__':
     print("Running")
-    pre_year, pre_month = CONFIG['startDate'][0], CONFIG['startDate'][1]
-    next_year, next_month = CONFIG['startDate'][0], CONFIG['startDate'][1] + 1
-    print([pre_year, pre_month, next_year, next_month])
-    # ----------------------选择pdf保存路径
+    # -----------------获取文件保存路径
     windll.shcore.SetProcessDpiAwareness(2)  # 高清对话框
     root = tk.Tk()
     root.withdraw()
@@ -121,18 +135,12 @@ if __name__ == '__main__':
         exit(0)
     else:
         file_path = file_path + '\\'
-    # --------------------------------------
-    while (pre_year < CONFIG['endDate'][0]) \
-            or (pre_year == CONFIG['endDate'][0] and next_month <= CONFIG['endDate'][1]):
-        if pre_month < 10:
-            pre = str(pre_year) + '0' + str(pre_month) + "01"
-        else:
-            pre = str(pre_year) + str(pre_month) + "01"
-        if next_month < 10:
-            next = str(next_year) + '0' + str(next_month) + "01"
-        else:
-            next = str(next_year) + str(next_month) + "01"
-        pre_year, pre_month = next_year, next_month
-        next_year, next_month = dateforward(next_year, next_month)
-        PageData = getPage(pre, next)
+    # -------------------
+    date = Date(CONFIG)
+    while True:
+        dateList = date.returnDateInterval()
+        print(dateList)
+        PageData = getPage(dateList[0], dateList[1])
         PageProcess(PageData)
+        if date.dateCheck():
+            break
